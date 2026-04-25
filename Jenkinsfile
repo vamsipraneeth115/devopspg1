@@ -7,33 +7,39 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git 'https://github.com/vamsipraneeth115/devopspg1.git'
+                git branch: 'main', url: 'https://github.com/vamsipraneeth115/devopspg1.git'
             }
         }
 
-        stage('Permissions') {
+        stage('Maven Build') {
             steps {
-                sh 'chmod +x gradlew'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh './gradlew clean build'
+                bat 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                sh './gradlew test'
+                bat 'mvn test'
             }
         }
 
-        stage('Archive') {
+        stage('Archive Results') {
             steps {
-                archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true
+                junit '*/target/surefire-reports/.xml'
+            }
+        }
+
+        stage('Gradle Build') {
+            steps {
+                bat 'gradle build'
+            }
+        }
+
+        stage('Run App') {
+            steps {
+                bat 'gradle run'
             }
         }
     }
