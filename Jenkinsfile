@@ -3,17 +3,12 @@ pipeline {
 
     tools {
         jdk 'JDK17'
+        maven 'Maven3'
     }
 
     stages {
 
-        stage('Clone') {
-            steps {
-                git branch: 'main', url: 'https://github.com/vamsipraneeth115/devopspg1.git'
-            }
-        }
-
-        stage('Maven Build') {
+        stage('Build') {
             steps {
                 bat 'mvn clean compile'
             }
@@ -25,21 +20,21 @@ pipeline {
             }
         }
 
+        stage('Package') {
+            steps {
+                bat 'mvn package'
+            }
+        }
+
         stage('Archive Results') {
             steps {
-                junit '*/target/surefire-reports/.xml'
+                junit '**/target/surefire-reports/*.xml'
             }
         }
 
-        stage('Gradle Build') {
+        stage('Archive Jar') {
             steps {
-                bat 'gradle build'
-            }
-        }
-
-        stage('Run App') {
-            steps {
-                bat 'gradle run'
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
     }
